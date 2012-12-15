@@ -1,0 +1,33 @@
+/**
+*CSS file for AZ Fuel Program
+*
+* Author: Guy Ewing
+* Orig Date: Nov 11, 2012
+* Mod Date:
+*/
+.main-div {
+    position: relative;
+    text-align: center;
+}
+#jqt input {
+    font: normal 18px "Helvetica Neue", Helvetica;
+    text-align:right;
+}
+#jqt .selection {
+    font: normal 18px "Helvetica Neue", Helvetica;
+    text-align:right;
+}
+#jqt .myBack {
+    right:15px;
+    width:60px;
+    overflow: visible;
+}
+#jqt .labelLeft {
+    width:30%;
+    float:left;
+}
+#jqt .moveRight {
+    width:65%;
+    float:left;
+    margin-left:10px;
+}

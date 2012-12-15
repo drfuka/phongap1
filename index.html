@@ -1,0 +1,284 @@
+<!doctype html>
+<html>
+    <head>
+        <meta charset="UTF-8" />
+        <title>jQTouch &beta;</title>
+        <link rel="stylesheet" href="themes/css/apple.css" title="jQTouch">
+        <link rel="stylesheet" href="themes/css/az.css" title="jQTouch">
+        <script src="src/lib/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="src/jqtouch.min.js" type="text/javascript" charset="utf-8"></script>
+        <script src="az.js" type="text/javascript" charset="utf-8"></script>
+        <!-- Uncomment the following two lines (and comment out the previous two) to use jQuery instead of Zepto. -->
+        <!-- <script src="../../src/lib/jquery-1.7.min.js" type="application/x-javascript" charset="utf-8"></script> -->
+        <!-- <script src="../../src/jqtouch-jquery.min.js" type="application/x-javascript" charset="utf-8"></script> -->
+
+        <script src="extensions/jqt.themeswitcher.min.js" type="application/x-javascript" charset="utf-8"></script>
+
+        <script type="text/javascript" charset="utf-8">
+            var jQT = new $.jQTouch({
+                icon: 'jqtouch.png',
+                icon4: 'jqtouch4.png',
+                addGlossToIcon: false,
+                startupScreen: 'jqt_startup.png',
+                statusBar: 'black-translucent',
+                themeSelectionSelector: '#jqt #themes ul',
+                preloadImages: []
+            });
+            
+            
+            //initialize database
+            initDB();
+            // Some sample Javascript functions:
+            $(function(){
+
+                // Show a swipe event on swipe test
+                $('#swipeme').swipe(function(evt, data) {
+                    var details = !data ? '': '<strong>' + data.direction + '/' + data.deltaX +':' + data.deltaY + '</strong>!';
+                    $(this).html('You swiped ' + details );
+                    $(this).parent().after('<li>swiped!</li>')
+                });
+
+                $('#tapme').tap(function(){
+                    $(this).parent().after('<li>tapped!</li>')
+                });
+
+                $('a[target="_blank"]').bind('click', function() {
+                    if (confirm('This link opens in a new window.')) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                });
+
+                // Page animation callback events
+                $('#pageevents').
+                    bind('pageAnimationStart', function(e, info){ 
+                        $(this).find('.info').append('Started animating ' + info.direction + '&hellip;  And the link ' +
+                            'had this custom data: ' + $(this).data('referrer').data('custom') + '<br>');
+                    }).
+                    bind('pageAnimationEnd', function(e, info){
+                        $(this).find('.info').append('Finished animating ' + info.direction + '.<br><br>');
+
+                    });
+                
+                // Page animations end with AJAX callback event, example 1 (load remote HTML only first time)
+                $('#callback').bind('pageAnimationEnd', function(e, info){
+                    // Make sure the data hasn't already been loaded (we'll set 'loaded' to true a couple lines further down)
+                    if (!$(this).data('loaded')) {
+                        // Append a placeholder in case the remote HTML takes its sweet time making it back
+                        // Then, overwrite the "Loading" placeholder text with the remote HTML
+                        $(this).append($('<div>Loading</div>').load('ajax.html .info', function() {        
+                            // Set the 'loaded' var to true so we know not to reload
+                            // the HTML next time the #callback div animation ends
+                            $(this).parent().data('loaded', true);  
+                        }));
+                    }
+                });
+                // Orientation callback event
+                $('#jqt').bind('turn', function(e, data){
+                    $('#orient').html('Orientation: ' + data.orientation);
+                });
+                
+            });
+        </script>
+        <style type="text/css" media="screen">
+            #jqt.fullscreen #home .info {
+                display: none;
+            }
+            div#jqt #about {
+                padding: 100px 10px 40px;
+                text-shadow: rgba(0, 0, 0, 0.3) 0px -1px 0;
+                color: #999;
+                font-size: 13px;
+                text-align: center;
+                background: #161618;
+            }
+            div#jqt #about p {
+                margin-bottom: 8px;
+            }
+            div#jqt #about a {
+                color: #fff;
+                font-weight: bold;
+                text-decoration: none;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="jqt">
+            <div id="themes">
+                <div class="toolbar">
+                    <h1>Themes</h1>
+                    <a href="#" class="back">Back</a>
+                </div>
+                <ul class="rounded">
+                </ul>
+            </div>
+            <div id="home" class="current">
+                <div class="toolbar">
+                    <h1>TAC</h1>
+                    <a class="button slideup" id="infoButton" href="#about">About</a>
+                </div>
+                <div class="scroll">
+                    <div class="main-div">
+                        <h1>Truck Application</h1>
+                        <label for="selectTruck" class="labelLeft">Select Truck:</label>
+                        <select id="selectTruck" class="selection moveRight" style="position: relative; padding-left: 10px;"><!-- this will come from DB -- value=truckid-->
+                            <option value="0" selected="selected"> --- </option>
+                            <option value="3005" >3005 [Jet A] </option>
+                            <option value="3090" >3090 [Jet A]</option>
+                            <option value="799" >799 [AV Gas]</option>
+                        </select><br /><br /><br />
+                        <label for="selectUser" class="labelLeft">Select User:</label>
+                        <select id="selectUser" class="selection moveRight"><!-- this will come from DB -- value=userid-->
+                            <option value="0" selected="selected"> --- </option>
+                            <option value="1" >Balcome, Erik </option>
+                            <option value="2" >Phelps, Mark </option>
+                            <option value="3" >Wetherell, Mark </option>
+                        </select><br /><br /><br />
+                        <label for="meter1Reading" class="labelLeft" style="font-size:smaller;">Current Meter 1 Reading:</label>
+                        <input id="meter1Reading" type="text" value="7974393" class="moveRight"/><br /><br /><br />
+                        <label for="meter2Reading" class="labelLeft" style="font-size:smaller;">Current Meter 2 Reading:</label>
+                        <input id="meter2Reading" type="text" value="466524" class="moveRight"/><br /><br /><br />
+                        <ul class="individual">
+                            <li><a href="javascript:void(0);" onClick="optionsPage();" class="whiteButton">Ok</a></li>
+                            <li><a href="javascript:void(0);" onclick="jQT.goTo('#options','slideleft')" class="whiteButton">Cancel</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="fuelOp">
+                <div class="toolbar">
+                    <h1>TAC</h1>
+                    <a href="#" class="button back">Back</a>
+                </div>
+                <div class="scroll">
+                    <div class="main-div">
+                        <h1>Truck Application</h1>
+                        <h2>Begin Fuel Op</h2>
+                        <label for="tailNumber" class="labelLeft">Tail Number:</label>
+                        <input id="tailNumber" type="text" class="moveRight"/><br /><br />
+                        <label for="acType" class="labelLeft">TAC Type:</label>
+                        <select id="acType" class="selection moveRight"><!-- this will come from DB -- value=userid-->
+                            <option value="1" selected="selected">A109-Helicopter </option>
+                            <option value="2" >A3-Douglas </option>
+                            <option value="3" >A319-Airbus </option>
+                            <option value="4" >A320-Airbus </option>
+                            <option value="5" >A321-Airbus </option>
+                            <option value="6" >AA1-Gilfstream </option>
+                        </select> <br /><br />
+                        <label for="selectCustomer" class="labelLeft">Customer:</label>
+                        <select id="selectCustomer" class="selection moveRight"><!-- this will come from DB -- value=userid-->
+                            <option value="1" selected="selected">Taughannock Aviation </option>
+                            <option value="2" >Continental Airlines </option>
+                            <option value="3" >Delta-NW Connection </option>
+                        </select> <br /><br />
+                        <label for="flightNumber" class="labelLeft">Flight:</label>
+                        <input id="flightNumber" type="text" class="moveRight"/><br /><br />
+                        <a href="#" class="whiteButton">Additive</a><br /><br />
+                        <label for="startMeter1" class="labelLeft" style="font-size:smaller;">Start Meter 1 Reading:</label>
+                        <input id="startMeter1" type="text" class="moveRight"/><br /><br />
+                        <label for="startMeter2" class="labelLeft" style="font-size:smaller;">Start Meter 2 Reading:</label>
+                        <input id="startMeter2" type="text" class="moveRight"/><br /><br />
+                        <ul class="individual">
+                            <li><a href="javascript:void(0);" onClick="compFuelOp();"class="whiteButton">Ok</a></li>
+                            <li><a href="javascript:void(0);" onclick="jQT.goTo('#home','slideleft')" class="whiteButton">Cancel</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div id="compFuelOp">
+                <div class="toolbar">
+                    <h1>TAC</h1>
+                    <a href="#" class="button back">Back</a>
+                </div>
+                <div class="scroll">
+                    <div class="main-div">
+                        <h1>Truck Application</h1>
+                        <h2>Complete Fuel Op</h2>
+                        <label for="notes" class="labelLeft">Notes: </label>
+                        <textarea id="notes" rows="4" class="moveRight"></textarea><br /><br /><br />
+                        <label for="endMeter1" class="labelLeft" style="font-size:smaller;">End Meter 1 Reading:</label>
+                        <input id="endMeter1" type="text" class="moveRight"/><br /><br />
+                        <label for="endMeter2" class="labelLeft" style="font-size:smaller;">End Meter 2 Reading:</label>
+                        <input id="endMeter2" type="text" class="moveRight"/><br /><br />
+                        <label for="totalGal" class="labelLeft">Total Gallons:</label>
+                        <input id="totalGal" type="text" class="moveRight"/><br /><br />
+                        <a href="#" class="whiteButton">Metered Operation</a><br /><br />
+                        <ul class="individual">
+                            <li><a href="javascript:void(0);" onclick="verify()" class="whiteButton">Ok</a></li>
+                            <li><a href="javascript:void(0);" onclick="jQT.goTo('#home','slideleft')" class="whiteButton">Cancel</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="verify">
+                <div class="toolbar">
+                    <h1>TAC</h1>
+                    <a href="#" class="button back">Back</a>
+                </div>
+                <div class="scroll">
+                    <div class="main-div">
+                        
+                        <h2 id="verifyTitle">Verify </h2><br /><br /><br />
+                        <ul class="individual">
+                            <li><a href="javascript:void(0);" onclick="record()" class="whiteButton">Ok</a></li>
+                            <li><a href="javascript:void(0);" onclick="jQT.goTo('#home','slideleft')" class="whiteButton">Cancel</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="messagePage">
+                <div class="toolbar">
+                    <h1>TAC</h1>
+                    <a href="#" class="button back">Back</a>
+                </div>
+                <div class="scroll">
+                    <div class="main-div">
+                        
+                        <h2 id="messageTitle">Message </h2><br /><br /><br />
+                        <ul class="individual">
+                            <li id="messageLi"></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="refreshPage">
+                <div class="toolbar">
+                    <h1>TAC</h1>
+                    <a href="#" class="button back">Back</a>
+                </div>
+                <div class="scroll">
+                    <div class="main-div">
+                        
+                        <h2 id="refreshTitle">Message </h2><br /><br /><br />
+                        <ul class="individual">
+                            <li id="refreshLi"></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="options">
+                <div class="toolbar">
+                    <h1>TAC</h1>
+                    <a href="#" class="button back">Back</a>
+                </div>
+                <div class="scroll">
+                    <div class="main-div">
+                        <h2 id="optionsTitle">Truck </h2><br />
+                        <ul class="rounded individual">
+                            <li class="arrow"><a href="#fuelOp">Aircraft Fuel Op</a></li><br /><br />
+                        </ul>
+                        <ul class="rounded individual">
+                            <li class="arrow"><a href="#">Fill/Drain Truck</a></li>
+                            <li class="arrow"><a href="#">Logoff</a></li><br/><br />
+                        </ul>
+                        <ul class="rounded individual">
+                            <li class="arrow"><a href="#">Transfer/Recirculate</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
